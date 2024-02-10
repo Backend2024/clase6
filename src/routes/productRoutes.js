@@ -3,20 +3,32 @@ const router = express.Router();
 const ProductManager = require('../ProductManager');
 const productManager = new ProductManager('../data/products.json');
 
+// Ruta que devuelve los productos en formato JSON
 router.get('/', async (req, res) => {
     try {
         let products = await productManager.getProducts();
-        res.render('home', { products }); // Utiliza la vista 'home' para mostrar los productos
+        res.json({ products });
     } catch (err) {
         res.status(500).send(err.message);
     }
 });
 
+// Ruta para la visualización y gestión en tiempo real de productos
+router.get('/realtimeproducts', async (req, res) => {
+    try {
+        let products = await productManager.getProducts();
+        res.render('realTimeProducts', { products });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// Ruta para obtener los detalles de un producto específico por ID
 router.get('/:pid', async (req, res) => {
     try {
         const product = await productManager.getProductById(parseInt(req.params.pid));
         if (product) {
-            res.render('productDetail', { product }); // Suponiendo que tienes una vista 'productDetail'
+            res.render('productDetail', { product }); // Asegúrate de que existe una vista 'productDetail'
         } else {
             res.status(404).send('Producto no encontrado');
         }
@@ -25,16 +37,18 @@ router.get('/:pid', async (req, res) => {
     }
 });
 
+// Ruta para añadir un nuevo producto
 router.post('/', async (req, res) => {
     try {
         const { title, description, price, thumbnail, code, stock } = req.body;
         await productManager.addProduct(title, description, price, thumbnail, code, stock);
-        res.redirect('/'); // Redirige a la página principal para ver la lista de productos actualizada
+        res.redirect('/realtimeproducts'); // Redirige a la ruta en tiempo real
     } catch (err) {
         res.status(500).send(err.message);
     }
 });
 
+// Ruta para actualizar un producto específico por ID
 router.put('/:pid', async (req, res) => {
     try {
         await productManager.updateProduct(parseInt(req.params.pid), req.body);
@@ -44,6 +58,7 @@ router.put('/:pid', async (req, res) => {
     }
 });
 
+// Ruta para eliminar un producto específico por ID
 router.delete('/:pid', async (req, res) => {
     try {
         await productManager.deleteProduct(parseInt(req.params.pid));
