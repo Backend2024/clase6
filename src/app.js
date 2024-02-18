@@ -43,8 +43,15 @@ io.on('connection', (socket) => {
 
     // Manejar el evento de nuevo producto
     socket.on('newProduct', async (productData) => {
-        await productManager.addProduct(productData);
-        io.emit('productListUpdated', await productManager.getProducts());
+        // Desestructura los datos del producto y pásalos como argumentos individuales
+        const { title, description, price, thumbnail, code, stock } = productData;
+        try {
+            await productManager.addProduct(title, description, price, thumbnail, code, stock);
+            io.emit('productListUpdated', await productManager.getProducts());
+        } catch (error) {
+            // Aquí deberías manejar el error, por ejemplo, enviando una respuesta al cliente
+            console.error(error);
+        }
     });
 
     // Manejar el evento de eliminación de producto
@@ -55,7 +62,8 @@ io.on('connection', (socket) => {
 
     // Manejar el evento de actualización de producto
     socket.on('updateProduct', async (productData) => {
-        await productManager.updateProduct(productData.id, productData);
+        const { id, title, description, price, thumbnail, code, stock } = productData;
+        await productManager.updateProduct(id, { title, description, price, thumbnail, code, stock });
         io.emit('productListUpdated', await productManager.getProducts());
     });
 });

@@ -45,10 +45,8 @@
     "stock": 30
   },
   {
-    "id": 12,
-    "title": {
-      "title": "\"silla\"",
-      "price": "50"
-    }
+    "id": 13,
+    "title": "Mesa de pimpon",
+    "price": "700"
   }
 ]
